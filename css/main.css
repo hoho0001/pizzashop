@@ -82,6 +82,14 @@ main{
     /* background-color: hsl(204, 50%, 60%); */
     color: #ff3;
 }
+
+.field-icon {
+  float: right;
+  margin-right: 5px;
+  margin-top: -25px;
+  position: relative;
+  z-index: 2;
+}
 .msg_err{
   color:red;
 }

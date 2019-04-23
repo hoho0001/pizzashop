@@ -3,6 +3,7 @@ let web = {
   URL: 'http://localhost:3030',
   token: '',
   pizzas: [],
+  currentUser: null,
   currentPizza: null,
   init: function () {
     document.querySelectorAll('.btn').forEach(function (item) {
@@ -26,6 +27,9 @@ let web = {
         break;
       case 'logout':
         web.logoutHandler();
+        break;
+      case 'changepw-btn':
+        document.getElementById('changepw-btn').addEventListener('click', web.changePasswordHandler);
         break;
       case 'add-new-pizza-btn':
         web.currentPizza = null;
@@ -192,7 +196,7 @@ let web = {
             // web.addMessage('success', "Login successfully!");
             web.token = data.data.token;
             sessionStorage.setItem(web.KEY, data.data.token);
-            web.getCurrentUser();
+            web.getLoginUser();
           } else {
             web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
           }
@@ -205,6 +209,62 @@ let web = {
           sendBtn.disabled = false;
         });
     }
+  },
+
+  loadUserInfo: function() {
+    console.log('load user info')
+    if (web.currentUser) {
+      console.log('has user info')
+
+      document.getElementById('user-first-name').value = web.currentUser.firstName;
+      document.getElementById('user-last-name').value = web.currentUser.lastName;
+      document.getElementById('user-email').value = web.currentUser.email;
+    }
+  },
+
+  changePasswordHandler: function() {
+    let newPassword = document.getElementById('new-password').value;
+    let confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+    if(!newPassword || !confirmNewPassword) {
+      web.addMessage('error', 'Missing required field' + '<br>' + 'Please input new password');
+    }
+
+    if (newPassword === confirmNewPassword) {
+      let newPassWordObject = {
+        password: newPassword
+      }
+      web.sendChangePasswordRequest(newPassWordObject);
+    } else {
+      web.addMessage('error', 'Password confirm failed' + '<br>' + 'New password confirmed is incorrect');
+    }
+  },
+
+  getLoginUser: function () {
+    let url = `${web.URL}/auth/users/me`;
+
+    const headers = new Headers();
+    web.attachBeaerToken(headers);
+    const request = new Request(url, {
+      headers: headers,
+      method: 'GET',
+    })
+
+    fetch(request).then(res => {
+      return res.json();
+    }).then(data => {
+      console.log('isStaff = ' + data.data.isStaff);
+      if (data.data.isStaff) {
+        //TODO
+        web.currentUser = data.data;
+        location.href = "../admin/pizzas.html"
+      } else {
+        location.href = "../pizzas.html"
+      }
+
+    }).catch(err => {
+      console.error(err)
+    });
   },
 
   getCurrentUser: function () {
@@ -220,19 +280,13 @@ let web = {
     fetch(request).then(res => {
       return res.json();
     }).then(data => {
-      console.log('isStaff = ' + data.data.isStaff);
-      if (data.data.isStaff) {
-        // web.navigateTo('admin-page');
-        //TODO
-        location.href = "../admin/pizzas.html"
-      } else {
-        location.href = "../pizzas.html"
-      }
-
+        web.currentUser = data.data;
+        web.loadUserInfo();
     }).catch(err => {
       console.error(err)
     });
   },
+
   attachBeaerToken: function (headers) {
     headers.append('Authorization', 'Bearer ' + sessionStorage.getItem(web.KEY));
   },
@@ -309,31 +363,38 @@ let web = {
       adminPizzaDiv.appendChild(table);
 
       web.pizzas.forEach(pizza => web.createPizzaRow(pizza));
-
-      if (document.querySelectorAll('.delete-pizza-link').length > 0) {
-        document.querySelectorAll('.delete-pizza-link').forEach(deleteButton => {
-          deleteButton.addEventListener('click', async function (ev) {
-            let pizzaId = ev.target.id;
-            web.currentPizza = await web.pizzas.find(pizza => pizza._id == pizzaId);
-            let confirm = window.confirm("Do you want to delete the pizza?");
-            if (confirm == true) {
-              web.sendDeletePizzaRequest(pizzaId);
-            }
-
-          });
-        });
-      }
-
-      if (document.querySelectorAll('.edit-pizza-link').length > 0) {
-        document.querySelectorAll('.edit-pizza-link').forEach(editButton => {
-          editButton.addEventListener('click', async function (ev) {
-            let pizzaId = ev.target.id;
-            window.location.href = `../admin/pizza-edit.html?id=${pizzaId}`
-          });
-        });
-      }
+      web.addEditPizzaEvent();
+      web.addDeletePizzaEvent();
     }
   },
+
+  addEditPizzaEvent: function() {
+    if (document.querySelectorAll('.edit-pizza-link').length > 0) {
+      document.querySelectorAll('.edit-pizza-link').forEach(editButton => {
+        editButton.addEventListener('click', async function (ev) {
+          let pizzaId = ev.target.id;
+          window.location.href = `../admin/pizza-edit.html?id=${pizzaId}`
+        });
+      });
+    }
+  },
+
+  addDeletePizzaEvent: function() {
+    if (document.querySelectorAll('.delete-pizza-link').length > 0) {
+      document.querySelectorAll('.delete-pizza-link').forEach(deleteButton => {
+        deleteButton.addEventListener('click', async function (ev) {
+          let pizzaId = ev.target.id;
+          web.currentPizza = await web.pizzas.find(pizza => pizza._id == pizzaId);
+          let confirm = window.confirm("Do you want to delete the pizza?");
+          if (confirm == true) {
+            web.sendDeletePizzaRequest(pizzaId);
+          }
+
+        });
+      });
+    }
+  },
+
   createPizzaRow: function (pizza) {
     let tableBody = document.querySelector('.pizza-table-body');
     let tableRow = document.createElement('tr');
@@ -345,10 +406,29 @@ let web = {
     tdSize.textContent = pizza.size;
 
     let tdIngredients = document.createElement('td');
-    tdIngredients.textContent = pizza.ingredients;
+    if (pizza.ingredients.length > 0) {
+      let ingredientNameList = [];
+      pizza.ingredients.forEach(ingredient => {
+          let ingredientFound = web.ingredients.find(i => i._id == ingredient);
+          ingredientNameList.push(ingredientFound.name);
+      })
+      tdIngredients.textContent = ingredientNameList;
+      } else {
+          tdIngredients.textContent = pizza.ingredients;
+      }
 
     let tdToppings = document.createElement('td');
-    tdToppings.textContent = pizza.extraToppings;
+    if (pizza.extraToppings.length > 0) {
+      let toppingNameList = [];
+      pizza.extraToppings.forEach(topping => {
+          let toppingFound = web.ingredients.find(i => i._id == topping);
+          toppingNameList.push(toppingFound.name);
+      })
+      console.log('list toppings name ' + toppingNameList);
+      tdToppings.textContent = toppingNameList;
+      } else {
+          tdToppings.textContent = pizza.extraToppings;
+      }
 
     let tdGlutenFree = document.createElement('td');
     tdGlutenFree.textContent = pizza.isGlutenFree;
@@ -405,6 +485,34 @@ let web = {
     }
   },
 
+  sendChangePasswordRequest: function(newPassWordObject) {
+    let url = `${web.URL}/auth/users/me`;
+    
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+    web.attachBeaerToken(headers);
+
+    const request = new Request(url, {
+        headers: headers,
+        method: 'PATCH',
+        mode: 'cors',
+        body: JSON.stringify(newPassWordObject)
+    })
+
+    fetch(request)
+    .then(res => {
+        if (res.status !== 200) {
+            throw new Error(res.status);
+            //TODO: handle error return from server
+        }
+        web.addMessage('success', 'Congratulations!' + '<br>' + 'Successfully change password');
+        return res.json();
+    }).then(data => {
+       
+    })
+    .catch(err => console.log(err));
+  },
+
   sendDeletePizzaRequest: function (id) {
     let url = `${web.URL}/api/pizzas/${id}`;
     const headers = new Headers();
@@ -447,7 +555,8 @@ let web = {
     } else {
       web.removePizzaRows();
       web.pizzas.forEach(pizza => web.createPizzaRow(pizza));
-
+      web.addEditPizzaEvent();
+      web.addDeletePizzaEvent();
     }
   },
   removePizzaRows: function () {
@@ -519,7 +628,7 @@ let web = {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
     web.attachBeaerToken(headers);
-
+    console.log('send edit pizza request');
     const request = new Request(url, {
       headers: headers,
       method: 'PATCH',
@@ -577,6 +686,27 @@ let web = {
     document.getElementById('edit-pizza-ingredients').value = "";
     document.getElementById('edit-pizza-toppings').value = "";
   },
+
+  getAllIngredients: function() {
+    let url = `${web.URL}/api/ingredients`;
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+
+    const request = new Request(url, {
+      headers: headers,
+      method: 'GET',
+      mode: 'cors',
+    })
+    fetch(request).then(res => {
+      return res.json();
+      
+    }).then(data => {
+      console.log(data.data);
+      web.ingredients = data.data;
+    })
+    .catch(err => console.log(err));
+  },
+
   getIngredientsInStock: function () {
     let url = `${web.URL}/api/ingredients?instock=true`;
 
