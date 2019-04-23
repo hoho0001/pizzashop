@@ -5,7 +5,12 @@ let web = {
   pizzas: [],
   currentUser: null,
   currentPizza: null,
+  currentIngredient: null,
+  defaultCategories: ['meat', 'spicy', 'vegitarian', 'vegan', 'halal', 'kosher', 'cheeze', 'seasonings'],
+ 
   init: function () {
+    web.getAllIngredients();
+    web.getAvailablePizzas();
     document.querySelectorAll('.btn').forEach(function (item) {
       item.addEventListener('click', web.navigate);
     })
@@ -33,14 +38,25 @@ let web = {
         break;
       case 'add-new-pizza-btn':
         web.currentPizza = null;
+        // web.refreshPizzaAdminPage();
         window.location.href = "../admin/pizza-edit.html"
+        break;
+      case 'add-new-ingredient-btn':
+        web.currentIngredient = null;
+        window.location.href = "../admin/ingredient-edit.html"
         break;
       case 'edit-pizza-cancel-btn':
         // let confirm = window.confirm("Do you want to discard all your changes?");
         // if (confirm == true) {
           web.currentPizza = null;
           window.location.href = "../admin/pizzas.html"
-        
+        break;
+      case 'edit-ingredient-cancel-btn':
+          web.currentIngredient = null;
+          window.location.href = "../admin/ingredients.html";
+        break;
+      case 'edit-ingredient-save-btn':
+        web.saveIngredientHandler();
         break;
       case 'edit-pizza-save-btn':
         web.savePizzaHandler();
@@ -305,12 +321,35 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
-        web.pizzas = data.data;
+        console.log('pizza get: ');
+        console.log(data.data);
         web.displayPizzaForAdmin();
       })
       .catch(err => console.log(err));
   },
+  adminIngredientHandler: function() {
+    let url = `${web.URL}/api/ingredients`;
+
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+
+    const request = new Request(url, {
+      headers: headers,
+      method: 'GET',
+      mode: 'cors',
+    })
+
+    fetch(request).then(res => {
+        return res.json();
+      }).then(data => {
+        console.log('ingredient get: ');
+        console.log(data.data);
+        web.displayIngredientsForAdmin();
+      })
+      .catch(err => console.log(err));
+  },
   displayPizzaForAdmin: function () {
+    console.log('diplay pizza called');
     let adminPizzaDiv = document.querySelector('.admin-pizzas');
     if (!web.pizzas || web.pizzas.length == 0) {
       let h1 = document.createElement('h1');
@@ -368,12 +407,79 @@ let web = {
     }
   },
 
+  displayIngredientsForAdmin: function() {
+    let adminIngredientsDiv = document.querySelector('.admin-ingredients');
+    // console.log('ingredients found ' + web.ingredients.length);
+    if (!web.ingredients || web.ingredients.length == 0) {
+        let h1 = document.createElement('h1');
+        h1.textContent = 'No data found';
+        adminIngredientsDiv.appendChild(h1);
+    } else {
+        let table = document.createElement('table');
+        table.classList.add('table');
+        table.classList.add('table-hover');
+        table.classList.add('ingredients-table');
+
+        let tableHead = document.createElement('thead');
+        tableHead.classList.add('thead-dark');
+
+        let tableRow = document.createElement('tr');
+
+        let thIngredientName = document.createElement('th');
+        thIngredientName.textContent = "Ingredient Name";
+        let thPrice = document.createElement('th');
+        thPrice.textContent = "Price";
+        let thQuantity = document.createElement('th');
+        thQuantity.textContent = "Quantity";
+        let thGlutenFree = document.createElement('th');
+        thGlutenFree.textContent = "Is Gluten Free";
+        let thUrl = document.createElement('th');
+        thUrl.textContent = "Image Url";
+        let thCategories = document.createElement('th');
+        thCategories.textContent = 'Categories';
+        let thAction = document.createElement('th');
+        thAction.textContent = "Action";
+
+        tableRow.appendChild(thIngredientName);
+        tableRow.appendChild(thPrice);
+        tableRow.appendChild(thQuantity);
+        tableRow.appendChild(thGlutenFree);
+        tableRow.appendChild(thUrl);
+        tableRow.appendChild(thCategories);
+        tableRow.appendChild(thAction);
+
+        tableHead.appendChild(tableRow);
+        
+        let tableBody = document.createElement('tbody');
+        tableBody.classList.add('ingredient-table-body')
+
+        table.appendChild(tableHead);
+        table.appendChild(tableBody);
+        adminIngredientsDiv.appendChild(table);
+
+        web.ingredients.forEach(ingredient => web.createIngredientRow(ingredient));
+        web.addEditIngredientEvent();
+        web.addDeleteIngredientEvent();
+    }
+  },
+
   addEditPizzaEvent: function() {
     if (document.querySelectorAll('.edit-pizza-link').length > 0) {
       document.querySelectorAll('.edit-pizza-link').forEach(editButton => {
         editButton.addEventListener('click', async function (ev) {
           let pizzaId = ev.target.id;
           window.location.href = `../admin/pizza-edit.html?id=${pizzaId}`
+        });
+      });
+    }
+  },
+
+  addEditIngredientEvent: function() {
+    if (document.querySelectorAll('.edit-ingredient-link').length > 0) {
+      document.querySelectorAll('.edit-ingredient-link').forEach(editButton => {
+        editButton.addEventListener('click', async function (ev) {
+          let ingredientId = ev.target.id;
+          window.location.href = `../admin/ingredient-edit.html?id=${ingredientId}`
         });
       });
     }
@@ -389,7 +495,21 @@ let web = {
           if (confirm == true) {
             web.sendDeletePizzaRequest(pizzaId);
           }
+        });
+      });
+    }
+  },
 
+  addDeleteIngredientEvent: function() {
+    if (document.querySelectorAll('.delete-ingredient-link').length > 0) {
+      document.querySelectorAll('.delete-ingredient-link').forEach(deleteButton => {
+        deleteButton.addEventListener('click', async function (ev) {
+          let ingredientId = ev.target.id;
+          web.currentIngredient = await web.ingredients.find(ingredient => ingredient._id == ingredientId);
+          let confirm = window.confirm("Do you want to delete the ingredient?");
+          if (confirm == true) {
+            web.sendDeleteIngredientRequest(ingredientId);
+          }
         });
       });
     }
@@ -406,11 +526,15 @@ let web = {
     tdSize.textContent = pizza.size;
 
     let tdIngredients = document.createElement('td');
+
+    console.log('ingredient list size ' + web.ingredients.length);
     if (pizza.ingredients.length > 0) {
       let ingredientNameList = [];
       pizza.ingredients.forEach(ingredient => {
           let ingredientFound = web.ingredients.find(i => i._id == ingredient);
-          ingredientNameList.push(ingredientFound.name);
+          if (ingredientFound) {
+            ingredientNameList.push(ingredientFound.name);
+          }
       })
       tdIngredients.textContent = ingredientNameList;
       } else {
@@ -422,7 +546,9 @@ let web = {
       let toppingNameList = [];
       pizza.extraToppings.forEach(topping => {
           let toppingFound = web.ingredients.find(i => i._id == topping);
-          toppingNameList.push(toppingFound.name);
+          if (toppingFound) {
+            toppingNameList.push(toppingFound.name);
+          }
       })
       console.log('list toppings name ' + toppingNameList);
       tdToppings.textContent = toppingNameList;
@@ -485,6 +611,58 @@ let web = {
     }
   },
 
+  createIngredientRow: function(ingredient) {
+    let tableBody = document.querySelector('.ingredient-table-body');
+    let tableRow = document.createElement('tr');
+
+    let tdName = document.createElement('td');
+    tdName.textContent = ingredient.name;
+
+    let tdPrice = document.createElement('td');
+    tdPrice.textContent = ingredient.price;
+
+    let tdQuantity = document.createElement('td');
+    tdQuantity.textContent = ingredient.quantity;
+
+    let tdGlutenFree = document.createElement('td');
+    tdGlutenFree.textContent = ingredient.isGlutenFree;
+
+    let tdUrl = document.createElement('td');
+    tdUrl.textContent = ingredient.imageUrl;
+
+    let tdCategories = document.createElement('td');
+    tdCategories.textContent = ingredient.categories;
+
+    let tdAction = document.createElement('td');
+
+    let editLink = document.createElement('a');
+    editLink.textContent = 'Edit'
+    editLink.setAttribute('href', '#');
+    editLink.classList.add('edit-ingredient-link');
+    editLink.id = ingredient._id;
+    
+    let deleteLink = document.createElement('a');
+    deleteLink.textContent = 'Delete';
+    deleteLink.setAttribute('href', '#');
+    deleteLink.classList.add('delete-ingredient-link');
+    deleteLink.setAttribute('data-toggle', 'modal');
+    deleteLink.setAttribute('data-target', '#confirm-delete-ingredient-dialog');
+    deleteLink.id = ingredient._id;
+
+    tdAction.appendChild(editLink);
+    tdAction.appendChild(deleteLink);
+
+    tableRow.appendChild(tdName);
+    tableRow.appendChild(tdPrice);
+    tableRow.appendChild(tdQuantity);
+    tableRow.appendChild(tdGlutenFree);
+    tableRow.appendChild(tdUrl);
+    tableRow.appendChild(tdCategories);
+    tableRow.appendChild(tdAction);
+
+    tableBody.appendChild(tableRow);
+},
+
   sendChangePasswordRequest: function(newPassWordObject) {
     let url = `${web.URL}/auth/users/me`;
     
@@ -531,7 +709,6 @@ let web = {
       })
       .then(data => {
         if (data.data) {
-
           web.pizzas = web.pizzas.filter(pizza => pizza._id != web.currentPizza._id);
           web.refreshPizzaAdminPage();
           web.addMessage('success', "Delete successfully!");
@@ -544,9 +721,44 @@ let web = {
       .finally(() => web.currentPizza = null);
   },
 
+  sendDeleteIngredientRequest: function(id) {
+    let url = `${web.URL}/api/ingredients/${id}`;
+    console.log('send delete ingredient request');
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+    web.attachBeaerToken(headers);
+
+    const request = new Request(url, {
+      headers: headers,
+      method: 'DELETE',
+      mode: 'cors',
+    })
+
+    fetch(request)
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        if (data.data) {
+          web.ingredients = web.ingredients.filter(ingredient => ingredient._id != web.currentIngredient._id);
+          web.refreshIngredientAdminPage();
+          web.addMessage('success', "Delete successfully!");
+        } else {
+          web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
+        }
+
+      })
+      .catch(err => console.log(err))
+      .finally(() => web.currentPizza = null);
+  },
+
   refreshPizzaAdminPage: function () {
+    console.log('refresh called');
+    console.log(web.pizzas);
+
+    
     if (web.pizzas.length == 0) { //if there is no content after delete, remove all the table 
-      let pizzaAdminContainer = document.querySelector('admin.pizzas');
+      let pizzaAdminContainer = document.querySelector('.admin-pizzas');
       let pizzasTable = document.getElementById('pizzas-table')
       pizzaAdminContainer.removeChild(pizzasTable);
       let h1 = document.createElement('h1');
@@ -559,6 +771,23 @@ let web = {
       web.addDeletePizzaEvent();
     }
   },
+
+  refreshIngredientAdminPage: function() {
+    if (web.ingredients.length == 0) {
+      let ingredientAdminContainer = document.querySelector('.admin-ingredients');
+      let ingredientTable = document.getElementById('ingredients-table');
+      ingredientAdminContainer.removeChild(ingredientTable);
+      let h1 = document.createElement('h1');
+      h1.textContent = 'No data found';
+      ingredientAdminContainer.appendChild(h1);
+    } else {
+      web.removeIngredientRows();
+      web.ingredients.forEach(ingredient => web.createIngredientRow(ingredient));
+      web.addEditIngredientEvent();
+      web.addDeleteIngredientEvent();
+    }
+  },
+
   removePizzaRows: function () {
     let pizzaBody = document.querySelector('.pizza-table-body');
     let pizzaRow = pizzaBody.firstChild;
@@ -566,6 +795,14 @@ let web = {
     while (pizzaRow) {
       pizzaBody.removeChild(pizzaRow);
       pizzaRow = pizzaBody.firstChild;
+    }
+  },
+  removeIngredientRows: function() {
+    let ingredientBody = document.querySelector('.ingredient-table-body');
+    let ingredientRow = ingredientBody.firstChild;
+    while (ingredientRow) {
+      ingredientBody.removeChild(ingredientRow);
+      ingredientRow = ingredientBody.firstChild;
     }
   },
   getSelectValues: function (select) {
@@ -619,12 +856,36 @@ let web = {
       } else {
         web.sendAddPizzaRequest(pizza)
       }
-
     }
+  },
+
+  saveIngredientHandler: function() {
+    let ingredient = null;
+    let validInput = true;
+    let i_name = document.getElementById('edit-ingredient-name').value;
+    let i_price = document.getElementById('edit-ingredient-price').value;
+    let i_isGlutenFree = document.getElementById('edit-ingredient-isGlutenFree').checked?"true":"false";
+    let i_url = document.getElementById('edit-ingredient-url').value;
+    let i_quantity = document.getElementById('edit-ingredient-quantity').value;
+    let i_categories = web.getSelectValues(document.getElementById('edit-ingredient-categories'));
+
+    console.log('categories ' + i_categories);
+    if(validInput) {
+      ingredient = {
+        name: i_name,
+        price: i_price,
+        isGlutenFree: i_isGlutenFree,
+        imageUrl: i_url,
+        quantity: i_quantity,
+        categories: i_categories
+      }
+    }
+
   },
 
   sendEditPizzaRequest: function (pizza) {
     let url = `${web.URL}/api/pizzas/${web.currentPizza._id}`;
+    console.log('current pizza id = ' + web.currentPizza._id);
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
     web.attachBeaerToken(headers);
@@ -639,14 +900,28 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
+
         if (data.data) {
           web.addMessage('success', "Save successfully!");
+          let index = web.pizzas.findIndex(tmp => tmp._id == web.currentPizza._id);
+          console.log("before ");
+          console.log(web.pizzas[index].name);
+          console.log(web.pizzas[index]._id);
+          pizza._id = web.currentPizza._id;
+          web.pizzas[index] = pizza;
+          console.log("after ");
+          console.log(web.pizzas[index].name);
+          console.log(web.pizzas[index]._id);
+          console.log(web.pizzas);
+          
         } else {
           // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
           console.log(data.errors)
         }
-        window.location.href = '../admin/pizzas.html'
+        // window.location.href = '../admin/pizzas.html';
         web.addMessage('success', "Save successfully!");
+        // web.refreshPizzaAdminPage();
+        
       })
       .catch(err => console.log(err));
   },
@@ -688,6 +963,7 @@ let web = {
   },
 
   getAllIngredients: function() {
+    console.log('get ingredient called');
     let url = `${web.URL}/api/ingredients`;
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
@@ -705,6 +981,26 @@ let web = {
       web.ingredients = data.data;
     })
     .catch(err => console.log(err));
+  },
+
+  getAvailablePizzas: function() {
+    let url = `${web.URL}/api/pizzas`;
+
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+
+    const request = new Request(url, {
+      headers: headers,
+      method: 'GET',
+      mode: 'cors',
+    })
+
+    fetch(request).then(res => {
+        return res.json();
+      }).then(data => {
+        web.pizzas = data.data;
+      })
+      .catch(err => console.log(err));
   },
 
   getIngredientsInStock: function () {
@@ -800,6 +1096,52 @@ let web = {
 
       })
       .catch(err => console.log(err));
+
+  },
+  showEditIngredient: function(id) {
+    let url = `${web.URL}/api/ingredients/${id}`;
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+
+    const request = new Request(url, {
+      headers: headers,
+      method: 'GET',
+      mode: 'cors',
+    })
+
+    fetch(request)
+    .then(res => {
+      return res.json();
+    }).then(data => {
+      if (data.data) {
+        web.currentIngredient = data.data;
+        document.getElementById('edit-ingredient-name').value = web.currentIngredient.name;
+        document.getElementById('edit-ingredient-price').value = web.currentIngredient.price;
+
+        let isGlutenFree = document.getElementById('edit-ingredient-isGlutenFree');
+        isGlutenFree.checked = web.currentIngredient.isGlutenFree;
+
+        if (web.currentIngredient.imageUrl) {
+          document.getElementById('edit-ingredient-url').value = web.currentIngredient.imageUrl;
+        }
+
+        let categories = document.getElementById('edit-ingredient-categories')
+          for (let i = 0; i< categories.options.length; i++)
+          {
+            web.currentIngredient.categories.forEach(category => {
+              console.log('category name = ' + category);
+              if (category === categories.options[i].value)
+              categories.options[i].selected = true ; 
+            })
+          }
+        document.getElementById('edit-ingredient-quantity').value = web.currentIngredient.quantity;
+        document.getElementById('')
+      } else {
+        console.log(data.errors)
+      }
+
+    })
+    .catch(err => console.log(err));
 
   }
 }
