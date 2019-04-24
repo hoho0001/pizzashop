@@ -93,11 +93,7 @@ let web = {
       console.log('Missing field to register');
       web.addMessage('error', 'Missing field to register');
     } else {
-      let sendBtn = document.getElementById('register-btn')
-      sendBtn.classList.add('Proccessing');
-      sendBtn.disabled = true;
-
-
+      web.addProcessingState('register-btn');
       const headers = new Headers();
       headers.append('Content-Type', 'application/json;charset=UTF-8');
 
@@ -114,6 +110,7 @@ let web = {
           return res.json();
         })
         .then(data => {
+          web.removeProcessingState('register-btn');
           console.log(JSON.stringify(data));
           if (data.data) {
             web.addMessage('success', "Register successfully!");
@@ -121,13 +118,9 @@ let web = {
           } else {
             web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
           }
-          sendBtn.classList.remove('Proccessing');
-          sendBtn.disabled = false;
         })
         .catch(err => {
           console.error(err)
-          sendBtn.classList.remove('Proccessing');
-          sendBtn.disabled = false;
         });
     }
   },
@@ -183,10 +176,8 @@ let web = {
       console.log('Missing field to login');
       web.addMessage('error', 'Missing field to Login');
     } else {
-      let sendBtn = document.getElementById('login-btn')
-      sendBtn.classList.add('Proccessing');
-      sendBtn.disabled = true;
-
+      web.addProcessingState('login-btn');
+    
       let user = {
         email: email,
         password: password,
@@ -207,6 +198,7 @@ let web = {
           return res.json();
         })
         .then(data => {
+          web.removeProcessingState('login-btn');
           console.log(JSON.stringify(data));
           if (data.data) {
             // web.addMessage('success', "Login successfully!");
@@ -216,13 +208,9 @@ let web = {
           } else {
             web.addMessage('error', data.errors[0].title + '<br>' + 'Please try again!');
           }
-          sendBtn.classList.remove('Proccessing');
-          sendBtn.disabled = false;
         })
         .catch(err => {
           console.error(err)
-          sendBtn.classList.remove('Proccessing');
-          sendBtn.disabled = false;
         });
     }
   },
@@ -244,15 +232,15 @@ let web = {
 
     if(!newPassword || !confirmNewPassword) {
       web.addMessage('error', 'Missing required field' + '<br>' + 'Please input new password');
-    }
-
-    if (newPassword === confirmNewPassword) {
-      let newPassWordObject = {
-        password: newPassword
-      }
-      web.sendChangePasswordRequest(newPassWordObject);
     } else {
-      web.addMessage('error', 'Password confirm failed' + '<br>' + 'New password confirmed is incorrect');
+      if (newPassword === confirmNewPassword) {
+        let newPassWordObject = {
+          password: newPassword
+        }
+        web.sendChangePasswordRequest(newPassWordObject);
+      } else {
+        web.addMessage('error', 'Password confirm failed' + '<br>' + 'New password confirmed is incorrect');
+      }
     }
   },
 
@@ -667,7 +655,8 @@ let web = {
 
   sendChangePasswordRequest: function(newPassWordObject) {
     let url = `${web.URL}/auth/users/me`;
-    
+    web.addProcessingState('changepw-btn');
+
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
     web.attachBeaerToken(headers);
@@ -681,6 +670,7 @@ let web = {
 
     fetch(request)
     .then(res => {
+        web.removeProcessingState('changepw-btn');
         if (res.status !== 200) {
             throw new Error(res.status);
             //TODO: handle error return from server
@@ -852,6 +842,7 @@ let web = {
         ingredients: p_ingredients, //must send the ingredient id
         extraToppings: p_toppings //must send the topping id
       }
+      web.addProcessingState('edit-pizza-save-btn');
       console.log(pizza)
       if (web.currentPizza) {
         web.sendEditPizzaRequest(pizza)
@@ -859,6 +850,18 @@ let web = {
         web.sendAddPizzaRequest(pizza)
       }
     }
+  },
+
+  addProcessingState: function(buttonId) {
+    let btn = document.getElementById(buttonId);
+    btn.classList.add('Proccessing');
+    btn.disabled = true;
+  },
+
+  removeProcessingState: function(buttonId) {
+    let btn = document.getElementById(buttonId);
+    btn.classList.remove('Proccessing');
+    btn.disabled = false;
   },
 
   saveIngredientHandler: function() {
@@ -881,7 +884,7 @@ let web = {
         quantity: i_quantity,
         categories: i_categories
       }
-
+      web.addProcessingState('edit-ingredient-save-btn');
       if (web.currentIngredient) {
         web.sendEditIngredientRequest(ingredient);
       } else {
@@ -908,19 +911,12 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
+        web.removeProcessingState('edit-pizza-save-btn');
         if (data.data) {
           web.addMessage('success', "Save successfully!");
           let index = web.pizzas.findIndex(tmp => tmp._id == web.currentPizza._id);
-          console.log("before ");
-          console.log(web.pizzas[index].name);
-          console.log(web.pizzas[index]._id);
           pizza._id = web.currentPizza._id;
           web.pizzas[index] = pizza;
-          console.log("after ");
-          console.log(web.pizzas[index].name);
-          console.log(web.pizzas[index]._id);
-          console.log(web.pizzas);
-          
         } else {
           // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
           console.log(data.errors)
@@ -947,29 +943,32 @@ let web = {
       body: JSON.stringify(ingredient)
     })
 
-    fetch(request).then(res => {
+    fetch(request)
+    .then(res => {
+      web.removeProcessingState('edit-ingredient-save-btn');
         return res.json();
-      }).then(data => {
-        if (data.data) {
-          web.addMessage('success', "Save successfully!");
-          let index = web.ingredients.findIndex(tmp => tmp._id == web.currentIngredient._id);
-          console.log("before ");
-          console.log(web.ingredients[index].name);
-          console.log(web.ingredients[index]._id);
-          ingredient._id = web.currentIngredient._id;
-          web.ingredients[index] = ingredient;
-          console.log("after ");
-          console.log(web.ingredients[index].name);
-          console.log(web.ingredients[index]._id);
-          console.log(web.ingredients);
-          
-        } else {
-          // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
-          console.log(data.errors)
-        }
-        // window.location.href = '../admin/pizzas.html';
+    })
+    .then(data => {
+      if (data.data) {
         web.addMessage('success', "Save successfully!");
-        // web.refreshPizzaAdminPage();
+        let index = web.ingredients.findIndex(tmp => tmp._id == web.currentIngredient._id);
+        console.log("before ");
+        console.log(web.ingredients[index].name);
+        console.log(web.ingredients[index]._id);
+        ingredient._id = web.currentIngredient._id;
+        web.ingredients[index] = ingredient;
+        console.log("after ");
+        console.log(web.ingredients[index].name);
+        console.log(web.ingredients[index]._id);
+        console.log(web.ingredients);
+        
+      } else {
+        // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
+        console.log(data.errors)
+      }
+      // window.location.href = '../admin/pizzas.html';
+      web.addMessage('success', "Save successfully!");
+      // web.refreshPizzaAdminPage();
         
       })
       .catch(err => console.log(err));
@@ -991,6 +990,7 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
+        web.removeProcessingState('edit-pizza-save-btn');
         if (data.data) {
           web.addMessage('success', "Save successfully!");
           web.resetEditPizza()
@@ -1016,17 +1016,18 @@ let web = {
       body: JSON.stringify(ingredient)
     })
 
-    fetch(request).then(res => {
-        return res.json();
-      }).then(data => {
-        if (data.data) {
-          web.addMessage('success', "Save successfully!");
-          web.resetEditIngredient();
-        } else {
-          web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
-        }
-        // window.location.href = '../admin/pizzas.html'
-        
+    fetch(request)
+    .then(res => {
+      web.removeProcessingState('edit-ingredient-save-btn');
+      return res.json();
+    })
+    .then(data => {
+      if (data.data) {
+        web.addMessage('success', "Save successfully!");
+        web.resetEditIngredient();
+      } else {
+        web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
+      }
       })
       .catch(err => console.log(err));
   },
