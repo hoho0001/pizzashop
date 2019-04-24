@@ -870,7 +870,7 @@ let web = {
     let i_categories = web.getSelectValues(document.getElementById('edit-ingredient-categories'));
 
     console.log('categories ' + i_categories);
-    if(validInput) {
+    if (validInput) {
       ingredient = {
         name: i_name,
         price: i_price,
@@ -878,6 +878,12 @@ let web = {
         imageUrl: i_url,
         quantity: i_quantity,
         categories: i_categories
+      }
+
+      if (web.currentIngredient) {
+        web.sendEditIngredientRequest(ingredient);
+      } else {
+        web.sendAddIngredientRequest(ingredient);
       }
     }
 
@@ -900,7 +906,6 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
-
         if (data.data) {
           web.addMessage('success', "Save successfully!");
           let index = web.pizzas.findIndex(tmp => tmp._id == web.currentPizza._id);
@@ -925,6 +930,49 @@ let web = {
       })
       .catch(err => console.log(err));
   },
+
+  sendEditIngredientRequest: function(ingredient) {
+    console.log('send edit ingredient request');
+    let url = `${web.URL}/api/ingredients/${web.currentIngredient._id}`;
+    console.log('current ingredient id = ' + web.currentIngredient._id);
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+    web.attachBeaerToken(headers);
+    const request = new Request(url, {
+      headers: headers,
+      method: 'PATCH',
+      mode: 'cors',
+      body: JSON.stringify(ingredient)
+    })
+
+    fetch(request).then(res => {
+        return res.json();
+      }).then(data => {
+        if (data.data) {
+          web.addMessage('success', "Save successfully!");
+          let index = web.ingredients.findIndex(tmp => tmp._id == web.currentIngredient._id);
+          console.log("before ");
+          console.log(web.ingredients[index].name);
+          console.log(web.ingredients[index]._id);
+          ingredient._id = web.currentIngredient._id;
+          web.ingredients[index] = ingredient;
+          console.log("after ");
+          console.log(web.ingredients[index].name);
+          console.log(web.ingredients[index]._id);
+          console.log(web.ingredients);
+          
+        } else {
+          // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
+          console.log(data.errors)
+        }
+        // window.location.href = '../admin/pizzas.html';
+        web.addMessage('success', "Save successfully!");
+        // web.refreshPizzaAdminPage();
+        
+      })
+      .catch(err => console.log(err));
+  },
+
   sendAddPizzaRequest: function (pizza) {
     let url = `${web.URL}/api/pizzas/`;
     const headers = new Headers();
@@ -953,13 +1001,49 @@ let web = {
       })
       .catch(err => console.log(err));
   },
-  resetEditPizza: function(){
+  sendAddIngredientRequest: function(ingredient) {
+    let url = `${web.URL}/api/ingredients/`;
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json;charset=UTF-8');
+    web.attachBeaerToken(headers);
+
+    const request = new Request(url, {
+      headers: headers,
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(ingredient)
+    })
+
+    fetch(request).then(res => {
+        return res.json();
+      }).then(data => {
+        if (data.data) {
+          web.addMessage('success', "Save successfully!");
+          web.resetEditIngredient();
+        } else {
+          web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
+        }
+        // window.location.href = '../admin/pizzas.html'
+        
+      })
+      .catch(err => console.log(err));
+  },
+  resetEditPizza: function() {
     document.getElementById('edit-pizza-name').value = "";
     document.getElementById('edit-pizza-size').value = "medium";
     document.getElementById('edit-pizza-isGlutenFree').checked = false;
     document.getElementById('edit-pizza-url').value = "";
     document.getElementById('edit-pizza-ingredients').value = "";
     document.getElementById('edit-pizza-toppings').value = "";
+  },
+
+  resetEditIngredient: function() {
+    document.getElementById('edit-ingredient-name').value = "";
+    document.getElementById('edit-ingredient-price').value = "";
+    document.getElementById('edit-ingredient-isGlutenFree').checked = false;
+    document.getElementById('edit-ingredient-url').value = "";
+    document.getElementById('edit-ingredient-quantity').value = "";
+    document.getElementById('edit-ingredient-categories').value = "";
   },
 
   getAllIngredients: function() {
