@@ -130,7 +130,42 @@ padding-left: 0;
   color: #563d7c;
 }
 
+.edit-ingredient-link, .edit-pizza-link {
+  margin-right: 0.4rem;
+}
 
+.table-head {
+  background-color: purple;
+  color:#fff;
+}
+
+.delete-ingredient-link, .delete-pizza-link {
+  margin-left: 0.4rem;
+}
+
+#add-new-ingredient-btn, #add-new-pizza-btn {
+  background-color: purple;
+  width: 60%;
+  margin-bottom: 1rem;
+}
+
+#add-new-ingredient-btn:hover, #add-new-pizza-btn:hover {
+  background-color:violet;
+}
+
+#edit-ingredient-cancel-btn, #edit-pizza-cancel-btn {
+  width: 48%;
+  margin-right: 1%;
+}
+
+#edit-ingredient-save-btn, #edit-pizza-save-btn {
+  width: 48%;
+  margin-left: 1%;
+}
+
+table {
+  overflow-x: auto;
+}
 
 /* @media (max-width: 575px) {
   
@@ -139,19 +174,32 @@ padding-left: 0;
   header h1{
     font-size: 3em;
   }
+
+  #add-new-ingredient-btn, #add-new-pizza-btn {
+    width: 60%;
+  }
 }
 @media (min-width: 768px) {
   header h1 {
     font-size: 3.5em;
+  }
+  #add-new-ingredient-btn, #add-new-pizza-btn {
+    width: 50%;
   }
 }
 @media (min-width: 991px) {
   header h1 {
     font-size: 4em;
   }
+  #add-new-ingredient-btn, #add-new-pizza-btn {
+    width: 40%;
+  }
 }
 @media (min-width: 1200px) {
   header h1 {
     font-size: 5em;
+  }
+  #add-new-ingredient-btn, #add-new-pizza-btn {
+    width: 30%;
   }
 }

@@ -140,7 +140,7 @@ let web = {
   },
 
   addMessage: function (type, msg) {
-
+    console.log('add message called');
     let notification = document.querySelector(".notification");
     let div = document.querySelector(".msg");
 
@@ -214,7 +214,7 @@ let web = {
             sessionStorage.setItem(web.KEY, data.data.token);
             web.getLoginUser();
           } else {
-            web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
+            web.addMessage('error', data.errors[0].title + '<br>' + 'Please try again!');
           }
           sendBtn.classList.remove('Proccessing');
           sendBtn.disabled = false;
@@ -362,7 +362,8 @@ let web = {
       table.id = 'pizzas-table';
 
       let tableHead = document.createElement('thead');
-      tableHead.classList.add('thead-dark');
+      // tableHead.classList.add('thead-dark');
+      tableHead.classList.add('table-head');
 
       let tableRow = document.createElement('tr');
 
@@ -421,7 +422,8 @@ let web = {
         table.classList.add('ingredients-table');
 
         let tableHead = document.createElement('thead');
-        tableHead.classList.add('thead-dark');
+        // tableHead.classList.add('thead-dark')
+        tableHead.classList.add('table-head');
 
         let tableRow = document.createElement('tr');
 
