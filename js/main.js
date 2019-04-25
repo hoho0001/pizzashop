@@ -339,7 +339,6 @@ let web = {
   },
   displayPizzaForAdmin: function () {
     console.log('diplay pizza called');
-    console.log('n of pizza found ' + web.pizzas.length);
     let adminPizzaDiv = document.querySelector('.admin-pizzas');
     if (!web.pizzas || web.pizzas.length == 0) {
       let h1 = document.createElement('h1');
@@ -358,7 +357,7 @@ let web = {
       let tableRow = document.createElement('tr');
 
       let thPizzaName = document.createElement('th');
-      thPizzaName.textContent = "PizzaName";
+      thPizzaName.textContent = "Pizza Name";
       let thSize = document.createElement('th');
       thSize.textContent = "Size";
       let thIngredients = document.createElement('th');
