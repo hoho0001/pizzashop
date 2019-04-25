@@ -28,7 +28,6 @@ let web = {
         web.registerHandler();
         break;
       case 'login-btn':
-        console.log("index");
         web.loginHandler();
         break;
       case 'logout':
@@ -39,7 +38,6 @@ let web = {
         break;
       case 'add-new-pizza-btn':
         web.currentPizza = null;
-        // web.refreshPizzaAdminPage();
         window.location.href = "../admin/pizza-edit.html"
         break;
       case 'add-new-ingredient-btn':
@@ -47,8 +45,6 @@ let web = {
         window.location.href = "../admin/ingredient-edit.html"
         break;
       case 'edit-pizza-cancel-btn':
-        // let confirm = window.confirm("Do you want to discard all your changes?");
-        // if (confirm == true) {
           web.currentPizza = null;
           window.location.href = "../admin/pizzas.html"
         break;
@@ -76,7 +72,6 @@ let web = {
   registerHandler: function () {
 
     let url = web.URL + '/auth/users';
-    console.log('Register');
 
     let firstName = document.getElementById('register-first-name').value;
     let lastName = document.getElementById('register-last-name').value;
@@ -91,7 +86,6 @@ let web = {
     }
 
     if (!firstName || !lastName || !email || !password) {
-      console.log('Missing field to register');
       web.addMessage('error', 'Missing field to register');
     } else {
       web.addProcessingState('register-btn');
@@ -112,7 +106,6 @@ let web = {
         })
         .then(data => {
           web.removeProcessingState('register-btn');
-          console.log(JSON.stringify(data));
           if (data.data) {
             web.addMessage('success', "Register successfully!");
             web.resetRegister();
@@ -134,7 +127,6 @@ let web = {
   },
 
   addMessage: function (type, msg) {
-    console.log('add message called');
     let notification = document.querySelector(".notification");
     let div = document.querySelector(".msg");
 
@@ -168,13 +160,11 @@ let web = {
   },
   loginHandler: function () {
     let url = `${web.URL}/auth/tokens`;
-    console.log('Login');
 
     let email = document.getElementById('login-email').value;
     let password = document.getElementById('login-password').value;
 
     if (!email || !password) {
-      console.log('Missing field to login');
       web.addMessage('error', 'Missing field to Login');
     } else {
       web.addProcessingState('login-btn');
@@ -200,9 +190,7 @@ let web = {
         })
         .then(data => {
           web.removeProcessingState('login-btn');
-          console.log(JSON.stringify(data));
           if (data.data) {
-            // web.addMessage('success', "Login successfully!");
             web.token = data.data.token;
             sessionStorage.setItem(web.KEY, data.data.token);
             web.getLoginUser();
@@ -217,10 +205,7 @@ let web = {
   },
 
   loadUserInfo: function() {
-    console.log('load user info')
     if (web.currentUser) {
-      console.log('has user info')
-
       document.getElementById('user-first-name').value = web.currentUser.firstName;
       document.getElementById('user-last-name').value = web.currentUser.lastName;
       document.getElementById('user-email').value = web.currentUser.email;
@@ -258,9 +243,7 @@ let web = {
     fetch(request).then(res => {
       return res.json();
     }).then(data => {
-      console.log('isStaff = ' + data.data.isStaff);
       if (data.data.isStaff) {
-        //TODO
         web.currentUser = data.data;
         location.href = "../admin/pizzas.html"
       } else {
@@ -311,8 +294,6 @@ let web = {
         return res.json();
       }).then(data => {
         web.pizzas = data.data;
-        console.log('pizza get: ');
-        console.log(data.data);
         web.displayPizzaForAdmin();
       })
       .catch(err => console.log(err));
@@ -338,7 +319,6 @@ let web = {
       .catch(err => console.log(err));
   },
   displayPizzaForAdmin: function () {
-    console.log('diplay pizza called');
     let adminPizzaDiv = document.querySelector('.admin-pizzas');
     if (!web.pizzas || web.pizzas.length == 0) {
       let h1 = document.createElement('h1');
@@ -351,7 +331,6 @@ let web = {
       table.id = 'pizzas-table';
 
       let tableHead = document.createElement('thead');
-      // tableHead.classList.add('thead-dark');
       tableHead.classList.add('table-head');
 
       let tableRow = document.createElement('tr');
@@ -399,7 +378,6 @@ let web = {
 
   displayIngredientsForAdmin: function() {
     let adminIngredientsDiv = document.querySelector('.admin-ingredients');
-    // console.log('ingredients found ' + web.ingredients.length);
     if (!web.ingredients || web.ingredients.length == 0) {
         let h1 = document.createElement('h1');
         h1.textContent = 'No data found';
@@ -411,7 +389,6 @@ let web = {
         table.classList.add('ingredients-table');
 
         let tableHead = document.createElement('thead');
-        // tableHead.classList.add('thead-dark')
         tableHead.classList.add('table-head');
 
         let tableRow = document.createElement('tr');
@@ -705,7 +682,6 @@ let web = {
         web.removeProcessingState('changepw-btn');
         if (res.status !== 200) {
             throw new Error(res.status);
-            //TODO: handle error return from server
         }
         web.addMessage('success', 'Congratulations!' + '<br>' + 'Successfully change password');
         return res.json();
@@ -747,7 +723,6 @@ let web = {
 
   sendDeleteIngredientRequest: function(id) {
     let url = `${web.URL}/api/ingredients/${id}`;
-    console.log('send delete ingredient request');
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
     web.attachBeaerToken(headers);
@@ -777,10 +752,6 @@ let web = {
   },
 
   refreshPizzaAdminPage: function () {
-    console.log('refresh called');
-    console.log(web.pizzas);
-
-    
     if (web.pizzas.length == 0) { //if there is no content after delete, remove all the table 
       let pizzaAdminContainer = document.querySelector('.admin-pizzas');
       let pizzasTable = document.getElementById('pizzas-table')
@@ -846,7 +817,6 @@ let web = {
 
   savePizzaHandler: function () {
     let pizza = null;
-    //TODO
 
     let validInput = true;
     let p_name = document.getElementById('edit-pizza-name').value;
@@ -859,8 +829,6 @@ let web = {
     if (!p_ingredients) p_ingredients = [];
     if (!p_toppings) p_toppings = [];
     if (!p_url) p_url = '';
-    console.log('size ' + p_size);
-
     if (!p_name) {
       web.addMessage('error', 'Please input name of the pizza');
       validInput = false;
@@ -871,11 +839,10 @@ let web = {
         size: p_size,
         imageUrl: p_url,
         isGlutenFree: p_isGlutenFree,
-        ingredients: p_ingredients, //must send the ingredient id
-        extraToppings: p_toppings //must send the topping id
+        ingredients: p_ingredients, 
+        extraToppings: p_toppings 
       }
       web.addProcessingState('edit-pizza-save-btn');
-      console.log(pizza)
       if (web.currentPizza) {
         web.sendEditPizzaRequest(pizza)
       } else {
@@ -910,7 +877,6 @@ let web = {
       web.addMessage('error', 'Please input name of the ingredient');
       validInput = false;
     }
-    console.log('categories ' + i_categories);
     if (validInput) {
       ingredient = {
         name: i_name,
@@ -932,11 +898,9 @@ let web = {
 
   sendEditPizzaRequest: function (pizza) {
     let url = `${web.URL}/api/pizzas/${web.currentPizza._id}`;
-    console.log('current pizza id = ' + web.currentPizza._id);
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
     web.attachBeaerToken(headers);
-    console.log('send edit pizza request');
     const request = new Request(url, {
       headers: headers,
       method: 'PATCH',
@@ -957,18 +921,13 @@ let web = {
           // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
           console.log(data.errors)
         }
-        // window.location.href = '../admin/pizzas.html';
         web.addMessage('success', "Save successfully!");
-        // web.refreshPizzaAdminPage();
-        
       })
       .catch(err => console.log(err));
   },
 
   sendEditIngredientRequest: function(ingredient) {
-    console.log('send edit ingredient request');
     let url = `${web.URL}/api/ingredients/${web.currentIngredient._id}`;
-    console.log('current ingredient id = ' + web.currentIngredient._id);
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
     web.attachBeaerToken(headers);
@@ -988,24 +947,13 @@ let web = {
       if (data.data) {
         web.addMessage('success', "Save successfully!");
         let index = web.ingredients.findIndex(tmp => tmp._id == web.currentIngredient._id);
-        console.log("before ");
-        console.log(web.ingredients[index].name);
-        console.log(web.ingredients[index]._id);
         ingredient._id = web.currentIngredient._id;
         web.ingredients[index] = ingredient;
-        console.log("after ");
-        console.log(web.ingredients[index].name);
-        console.log(web.ingredients[index]._id);
-        console.log(web.ingredients);
-        
       } else {
         // web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
         console.log(data.errors)
       }
-      // window.location.href = '../admin/pizzas.html';
       web.addMessage('success', "Save successfully!");
-      // web.refreshPizzaAdminPage();
-        
       })
       .catch(err => console.log(err));
   },
@@ -1034,8 +982,6 @@ let web = {
         } else {
           web.addMessage('error', data.errors[0].title + '<br>' + data.errors[0].detail);
         }
-        // window.location.href = '../admin/pizzas.html'
-        
       })
       .catch(err => console.log(err));
   },
@@ -1086,7 +1032,6 @@ let web = {
   },
 
   getAllIngredients: function() {
-    console.log('get ingredient called');
     let url = `${web.URL}/api/ingredients`;
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
@@ -1166,7 +1111,6 @@ let web = {
   },
   showEditPizza: function (id) {
     let url = `${web.URL}/api/pizzas/${id}`;
-    console.log(url)
 
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
@@ -1183,7 +1127,6 @@ let web = {
       }).then(data => {
         if (data.data) {
           web.currentPizza = data.data;
-          console.log(JSON.stringify(data.data.ingredients));
           document.getElementById('edit-pizza-name').value = web.currentPizza.name;
           let size = document.getElementById('edit-pizza-size')
           size.value = web.currentPizza.size;
@@ -1252,7 +1195,6 @@ let web = {
           for (let i = 0; i< categories.options.length; i++)
           {
             web.currentIngredient.categories.forEach(category => {
-              console.log('category name = ' + category);
               if (category === categories.options[i].value)
               categories.options[i].selected = true ; 
             })
