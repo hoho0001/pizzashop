@@ -1,5 +1,6 @@
 let web = {
   KEY: 'KEY',
+  // URL: 'http://hoho0001.edumedia.ca', 
   URL: 'http://localhost:3030',
   token: '',
   pizzas: [],
@@ -309,6 +310,7 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
+        web.pizzas = data.data;
         console.log('pizza get: ');
         console.log(data.data);
         web.displayPizzaForAdmin();
@@ -330,14 +332,14 @@ let web = {
     fetch(request).then(res => {
         return res.json();
       }).then(data => {
-        console.log('ingredient get: ');
-        console.log(data.data);
+        web.ingredients = data.data;
         web.displayIngredientsForAdmin();
       })
       .catch(err => console.log(err));
   },
   displayPizzaForAdmin: function () {
     console.log('diplay pizza called');
+    console.log('n of pizza found ' + web.pizzas.length);
     let adminPizzaDiv = document.querySelector('.admin-pizzas');
     if (!web.pizzas || web.pizzas.length == 0) {
       let h1 = document.createElement('h1');
@@ -522,7 +524,13 @@ let web = {
     tdPrice.textContent = pizza.price;
 
     let tdGlutenFree = document.createElement('td');
-    tdGlutenFree.textContent = pizza.isGlutenFree;
+
+    let checkbox = document.createElement('input');
+    checkbox.setAttribute('type', 'checkbox');
+    checkbox.setAttribute('onclick', 'return false');
+
+    pizza.isGlutenFree == true? checkbox.checked = true: checkbox.checked = false;
+    tdGlutenFree.appendChild(checkbox);
 
     let tdUrl = document.createElement('td');
     tdUrl.classList.add('text-left');
@@ -535,7 +543,7 @@ let web = {
       pizza.ingredients.forEach(ingredient => {
         let ingredientFound = web.ingredients.find(i => i._id == ingredient);
         if (ingredientFound) {
-          ingredientNameList.push(ingredientFound.name);
+          ingredientNameList.push(' ' + ingredientFound.name);
         }
       })
       tdIngredients.textContent = ingredientNameList;
@@ -551,10 +559,9 @@ let web = {
       pizza.extraToppings.forEach(topping => {
           let toppingFound = web.ingredients.find(i => i._id == topping);
           if (toppingFound) {
-            toppingNameList.push(toppingFound.name);
+            toppingNameList.push(' ' + toppingFound.name);
           }
       })
-      console.log('list toppings name ' + toppingNameList);
       tdToppings.textContent = toppingNameList;
       } else {
           tdToppings.textContent = pizza.extraToppings;
@@ -622,7 +629,13 @@ let web = {
 
 
     let tdGlutenFree = document.createElement('td');
-    tdGlutenFree.textContent = ingredient.isGlutenFree;
+
+    let checkbox = document.createElement('input');
+    checkbox.setAttribute('type', 'checkbox');
+    checkbox.setAttribute('onclick', 'return false');
+
+    ingredient.isGlutenFree == true? checkbox.checked = true: checkbox.checked = false;
+    tdGlutenFree.appendChild(checkbox);
 
     let tdUrl = document.createElement('td');
     tdUrl.textContent = ingredient.imageUrl;
@@ -630,7 +643,16 @@ let web = {
 
 
     let tdCategories = document.createElement('td');
-    tdCategories.textContent = ingredient.categories;
+    if (ingredient.categories. length > 0) {
+      let i_categories = [];
+      ingredient.categories.forEach(category => {
+        i_categories.push(' ' + category);
+      })
+      tdCategories.textContent = i_categories;
+    } else {
+      tdCategories.textContent = ingredient.categories;
+    }
+    
     tdCategories.classList.add('text-left');
 
 
