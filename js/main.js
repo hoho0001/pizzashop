@@ -906,6 +906,10 @@ let web = {
     let i_quantity = document.getElementById('edit-ingredient-quantity').value;
     let i_categories = web.getSelectValues(document.getElementById('edit-ingredient-categories'));
 
+    if (!i_name) {
+      web.addMessage('error', 'Please input name of the ingredient');
+      validInput = false;
+    }
     console.log('categories ' + i_categories);
     if (validInput) {
       ingredient = {

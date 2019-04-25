@@ -29,6 +29,7 @@ header{
     min-height: 5vh;
     color: rgb(255, 255, 255);
 }
+
 header h1{
   font-size: 1.8em;
   text-transform: uppercase;
@@ -37,10 +38,11 @@ header h1{
 header div:first-child{
   height: 20vh;
 }
-#avatar{
-height: 100%;
+#logo-image{
+height: 90%;
+margin-top: 0.7rem;
 width: auto;
-    }
+}
 main{
   position: relative;
   top: 56px;
