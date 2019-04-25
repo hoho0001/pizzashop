@@ -610,21 +610,29 @@ let web = {
 
     let tdName = document.createElement('td');
     tdName.textContent = ingredient.name;
+    tdName.classList.add('text-left');
 
     let tdPrice = document.createElement('td');
     tdPrice.textContent = ingredient.price;
+    tdPrice.classList.add('text-right');
 
     let tdQuantity = document.createElement('td');
     tdQuantity.textContent = ingredient.quantity;
+    tdQuantity.classList.add('text-right');
+
 
     let tdGlutenFree = document.createElement('td');
     tdGlutenFree.textContent = ingredient.isGlutenFree;
 
     let tdUrl = document.createElement('td');
     tdUrl.textContent = ingredient.imageUrl;
+    tdUrl.classList.add('text-left');
+
 
     let tdCategories = document.createElement('td');
     tdCategories.textContent = ingredient.categories;
+    tdCategories.classList.add('text-left');
+
 
     let tdAction = document.createElement('td');
 
