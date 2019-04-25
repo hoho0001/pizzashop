@@ -374,11 +374,11 @@ let web = {
 
       tableRow.appendChild(thPizzaName);
       tableRow.appendChild(thSize);
+      tableRow.appendChild(thPrice);
+      tableRow.appendChild(thGlutenFree);
+      tableRow.appendChild(thUrl);
       tableRow.appendChild(thIngredients);
       tableRow.appendChild(thToppings);
-      tableRow.appendChild(thGlutenFree);
-      tableRow.appendChild(thPrice);
-      tableRow.appendChild(thUrl);
       tableRow.appendChild(thAction);
 
       tableHead.appendChild(tableRow);
@@ -431,8 +431,8 @@ let web = {
         thAction.textContent = "Action";
 
         tableRow.appendChild(thIngredientName);
-        tableRow.appendChild(thPrice);
         tableRow.appendChild(thQuantity);
+        tableRow.appendChild(thPrice);
         tableRow.appendChild(thGlutenFree);
         tableRow.appendChild(thUrl);
         tableRow.appendChild(thCategories);
@@ -510,28 +510,42 @@ let web = {
     let tableRow = document.createElement('tr');
 
     let tdName = document.createElement('td');
+    tdName.classList.add('text-left');
     tdName.textContent = pizza.name;
 
     let tdSize = document.createElement('td');
+    tdSize.classList.add('text-left');
     tdSize.textContent = pizza.size;
 
-    let tdIngredients = document.createElement('td');
+    let tdPrice = document.createElement('td');
+    tdPrice.classList.add('text-right');
+    tdPrice.textContent = pizza.price;
 
-    console.log('ingredient list size ' + web.ingredients.length);
+    let tdGlutenFree = document.createElement('td');
+    tdGlutenFree.textContent = pizza.isGlutenFree;
+
+    let tdUrl = document.createElement('td');
+    tdUrl.classList.add('text-left');
+    tdUrl.textContent = pizza.imageUrl;
+
+    let tdIngredients = document.createElement('td');
+    tdIngredients.classList.add('text-left');
     if (pizza.ingredients.length > 0) {
       let ingredientNameList = [];
       pizza.ingredients.forEach(ingredient => {
-          let ingredientFound = web.ingredients.find(i => i._id == ingredient);
-          if (ingredientFound) {
-            ingredientNameList.push(ingredientFound.name);
-          }
+        let ingredientFound = web.ingredients.find(i => i._id == ingredient);
+        if (ingredientFound) {
+          ingredientNameList.push(ingredientFound.name);
+        }
       })
       tdIngredients.textContent = ingredientNameList;
-      } else {
-          tdIngredients.textContent = pizza.ingredients;
-      }
+    } else {
+        tdIngredients.textContent = pizza.ingredients;
+    }
 
     let tdToppings = document.createElement('td');
+    tdToppings.classList.add('text-left');
+
     if (pizza.extraToppings.length > 0) {
       let toppingNameList = [];
       pizza.extraToppings.forEach(topping => {
@@ -546,15 +560,6 @@ let web = {
           tdToppings.textContent = pizza.extraToppings;
       }
 
-    let tdGlutenFree = document.createElement('td');
-    tdGlutenFree.textContent = pizza.isGlutenFree;
-
-    let tdPrice = document.createElement('td');
-    tdPrice.textContent = pizza.price;
-
-    let tdUrl = document.createElement('td');
-    tdUrl.textContent = pizza.imageUrl;
-
     let tdAction = document.createElement('td');
 
     let editLink = document.createElement('a');
@@ -568,8 +573,6 @@ let web = {
     deleteLink.textContent = 'Delete';
     deleteLink.setAttribute('href', '#');
     deleteLink.classList.add('delete-pizza-link');
-    // deleteLink.setAttribute('data-toggle', 'modal')
-    // deleteLink.setAttribute('data-target', '#confirm-dialog')
     deleteLink.id = pizza._id;
 
     tdAction.appendChild(editLink);
@@ -577,11 +580,11 @@ let web = {
 
     tableRow.appendChild(tdName);
     tableRow.appendChild(tdSize);
+    tableRow.appendChild(tdPrice);
+    tableRow.appendChild(tdGlutenFree);
+    tableRow.appendChild(tdUrl);
     tableRow.appendChild(tdIngredients);
     tableRow.appendChild(tdToppings);
-    tableRow.appendChild(tdGlutenFree);
-    tableRow.appendChild(tdPrice);
-    tableRow.appendChild(tdUrl);
     tableRow.appendChild(tdAction);
 
     tableBody.appendChild(tableRow);
@@ -643,8 +646,8 @@ let web = {
     tdAction.appendChild(deleteLink);
 
     tableRow.appendChild(tdName);
-    tableRow.appendChild(tdPrice);
     tableRow.appendChild(tdQuantity);
+    tableRow.appendChild(tdPrice);
     tableRow.appendChild(tdGlutenFree);
     tableRow.appendChild(tdUrl);
     tableRow.appendChild(tdCategories);
