@@ -11,7 +11,7 @@ let web = {
   defaultCategories: ['meat', 'spicy', 'vegitarian', 'vegan', 'halal', 'kosher', 'cheeze', 'seasonings'],
  
   init: function () {
-    web.getAllIngredients();
+    // web.getAllIngredients();
     // web.getAvailablePizzas();
     document.querySelectorAll('.btn').forEach(function (item) {
       item.addEventListener('click', web.navigate);
@@ -753,7 +753,7 @@ let web = {
       .finally(() => web.currentPizza = null);
   },
 
-  refreshPizzaAdminPage: function () {
+  refreshPizzaAdminPage: async function () {
     if (web.pizzas.length == 0) { //if there is no content after delete, remove all the table 
       let pizzaAdminContainer = document.querySelector('.admin-pizzas');
       let pizzasTable = document.getElementById('pizzas-table')
@@ -762,6 +762,7 @@ let web = {
       h1.textContent = 'No data found';
       pizzaAdminContainer.appendChild(h1);
     } else {
+      await web.getAllIngredients();
       web.removePizzaRows();
       web.pizzas.forEach(pizza => web.createPizzaRow(pizza));
       web.addEditPizzaEvent();
