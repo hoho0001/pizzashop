@@ -65,7 +65,7 @@ let web = {
   logoutHandler: function (ev) {
     let confirm = window.confirm("Do you want to logout?");
     if (confirm == true) {
-      location.href =web.WEBURL + "index.html";
+      location.href = web.WEBURL + "index.html";
       web.token = '';
       sessionStorage.removeItem(web.KEY);
     }
