@@ -281,6 +281,7 @@ let web = {
   },
   adminPizzasHandler: function () {
     let url = `${web.URL}/api/pizzas`;
+    console.log('url = ' + url);
 
     const headers = new Headers();
     headers.append('Content-Type', 'application/json;charset=UTF-8');
