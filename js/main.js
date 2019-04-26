@@ -12,8 +12,8 @@ let web = {
   defaultCategories: ['meat', 'spicy', 'vegitarian', 'vegan', 'halal', 'kosher', 'cheeze', 'seasonings'],
  
   init: function () {
-    // web.getAllIngredients();
-    // web.getAvailablePizzas();
+    web.getAllIngredients();
+    web.getAvailablePizzas();
     document.querySelectorAll('.btn').forEach(function (item) {
       item.addEventListener('click', web.navigate);
     })
