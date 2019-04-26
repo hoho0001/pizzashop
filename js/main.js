@@ -252,6 +252,7 @@ let web = {
         location.href = web.WEBURL + "profile.html";
         document.querySelector('.pizza-admin-link').hidden = true;
         document.querySelector('.ingredient-admin-link').hidden = true;
+      }
 
     }).catch(err => {
       console.error(err)
