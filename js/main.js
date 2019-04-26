@@ -1,6 +1,7 @@
 let web = {
   KEY: 'KEY',
   URL: 'https://hoho0001.edumedia.ca', 
+  WEBURL: 'https://hoho0001.github.io/pizzashop/',
   // URL: 'http://localhost:3030',
   token: '',
   pizzas: [],
@@ -38,19 +39,19 @@ let web = {
         break;
       case 'add-new-pizza-btn':
         web.currentPizza = null;
-        window.location.href = "./admin/pizza-edit.html"
+        window.location.href = web.WEBURL + "admin/pizza-edit.html"
         break;
       case 'add-new-ingredient-btn':
         web.currentIngredient = null;
-        window.location.href = "./admin/ingredient-edit.html"
+        window.location.href = web.WEBURL + "admin/ingredient-edit.html"
         break;
       case 'edit-pizza-cancel-btn':
           web.currentPizza = null;
-          window.location.href = "./admin/pizzas.html"
+          window.location.href = web.WEBURL + "admin/pizzas.html"
         break;
       case 'edit-ingredient-cancel-btn':
           web.currentIngredient = null;
-          window.location.href = "./admin/ingredients.html";
+          window.location.href = web.WEBURL + "admin/ingredients.html";
         break;
       case 'edit-ingredient-save-btn':
         web.saveIngredientHandler();
@@ -64,7 +65,7 @@ let web = {
   logoutHandler: function (ev) {
     let confirm = window.confirm("Do you want to logout?");
     if (confirm == true) {
-      location.href = "./index.html";
+      location.href =web.WEBURL + "index.html";
       web.token = '';
       sessionStorage.removeItem(web.KEY);
     }
@@ -245,9 +246,9 @@ let web = {
     }).then(data => {
       if (data.data.isStaff) {
         web.currentUser = data.data;
-        location.href = "./admin/pizzas.html"
+        location.href = web.WEBURL + "admin/pizzas.html"
       } else {
-        location.href = "./pizzas.html"
+        location.href = web.WEBURL + "pizzas.html"
       }
 
     }).catch(err => {
@@ -436,7 +437,7 @@ let web = {
       document.querySelectorAll('.edit-pizza-link').forEach(editButton => {
         editButton.addEventListener('click', async function (ev) {
           let pizzaId = ev.target.id;
-          window.location.href = `./admin/pizza-edit.html?id=${pizzaId}`
+          window.location.href = `${web.WEBURL}admin/pizza-edit.html?id=${pizzaId}`
         });
       });
     }
@@ -447,7 +448,7 @@ let web = {
       document.querySelectorAll('.edit-ingredient-link').forEach(editButton => {
         editButton.addEventListener('click', async function (ev) {
           let ingredientId = ev.target.id;
-          window.location.href = `./admin/ingredient-edit.html?id=${ingredientId}`
+          window.location.href = `${web.WEBURL}admin/ingredient-edit.html?id=${ingredientId}`
         });
       });
     }
