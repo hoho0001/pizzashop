@@ -250,9 +250,8 @@ let web = {
         location.href = web.WEBURL + "admin/pizzas.html"
       } else {
         location.href = web.WEBURL + "profile.html";
-        document.querySelector('.pizza-admin-link').setAttribute("hidden", true);
-        document.querySelector('.ingredient-admin-link').setAttribute("hidden", true);
-      }
+        document.querySelector('.pizza-admin-link').hidden = true;
+        document.querySelector('.ingredient-admin-link').hidden = true;
 
     }).catch(err => {
       console.error(err)
