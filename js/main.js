@@ -249,12 +249,8 @@ let web = {
         web.currentUser = data.data;
         location.href = web.WEBURL + "admin/pizzas.html"
       } else {
+        web.currentUser = data.data;
         location.href = web.WEBURL + "profile.html";
-        console.log('get pizzas link');
-        let pizzasLink = document.querySelector('.pizza-admin-link');
-        console.log(pizzasLink);
-        document.querySelector('.ingredient-admin-link').hidden = true;
-        
       }
 
     }).catch(err => {
@@ -276,6 +272,15 @@ let web = {
       return res.json();
     }).then(data => {
         web.currentUser = data.data;
+        if (currentUser.isStaff) {
+          console.log('set hidden');
+          document.querySelector('.pizza-admin-link').hidden = false;
+          document.querySelector('.ingredient-admin-link').hidden = false;
+        } else {
+          console.log('remove hidden');
+          document.querySelector('.pizza-admin-link').hidden = true;
+          document.querySelector('.ingredient-admin-link').hidden = true;
+        }
         web.loadUserInfo();
     }).catch(err => {
       console.error(err)
