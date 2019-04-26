@@ -38,19 +38,19 @@ let web = {
         break;
       case 'add-new-pizza-btn':
         web.currentPizza = null;
-        window.location.href = "../admin/pizza-edit.html"
+        window.location.href = "./admin/pizza-edit.html"
         break;
       case 'add-new-ingredient-btn':
         web.currentIngredient = null;
-        window.location.href = "../admin/ingredient-edit.html"
+        window.location.href = "./admin/ingredient-edit.html"
         break;
       case 'edit-pizza-cancel-btn':
           web.currentPizza = null;
-          window.location.href = "../admin/pizzas.html"
+          window.location.href = "./admin/pizzas.html"
         break;
       case 'edit-ingredient-cancel-btn':
           web.currentIngredient = null;
-          window.location.href = "../admin/ingredients.html";
+          window.location.href = "./admin/ingredients.html";
         break;
       case 'edit-ingredient-save-btn':
         web.saveIngredientHandler();
@@ -64,7 +64,7 @@ let web = {
   logoutHandler: function (ev) {
     let confirm = window.confirm("Do you want to logout?");
     if (confirm == true) {
-      location.href = "../index.html";
+      location.href = "./index.html";
       web.token = '';
       sessionStorage.removeItem(web.KEY);
     }
@@ -160,7 +160,7 @@ let web = {
   },
   loginHandler: function () {
     let url = `${web.URL}/auth/tokens`;
-
+    console.log(url);
     let email = document.getElementById('login-email').value;
     let password = document.getElementById('login-password').value;
 
@@ -183,7 +183,7 @@ let web = {
         mode: 'cors',
         body: JSON.stringify(user)
       })
-
+      console.log(request.url)
       fetch(request)
         .then(res => {
           return res.json();
@@ -245,9 +245,9 @@ let web = {
     }).then(data => {
       if (data.data.isStaff) {
         web.currentUser = data.data;
-        location.href = "../admin/pizzas.html"
+        location.href = "./admin/pizzas.html"
       } else {
-        location.href = "../pizzas.html"
+        location.href = "./pizzas.html"
       }
 
     }).catch(err => {
@@ -436,7 +436,7 @@ let web = {
       document.querySelectorAll('.edit-pizza-link').forEach(editButton => {
         editButton.addEventListener('click', async function (ev) {
           let pizzaId = ev.target.id;
-          window.location.href = `../admin/pizza-edit.html?id=${pizzaId}`
+          window.location.href = `./admin/pizza-edit.html?id=${pizzaId}`
         });
       });
     }
@@ -447,7 +447,7 @@ let web = {
       document.querySelectorAll('.edit-ingredient-link').forEach(editButton => {
         editButton.addEventListener('click', async function (ev) {
           let ingredientId = ev.target.id;
-          window.location.href = `../admin/ingredient-edit.html?id=${ingredientId}`
+          window.location.href = `./admin/ingredient-edit.html?id=${ingredientId}`
         });
       });
     }
