@@ -249,7 +249,9 @@ let web = {
         web.currentUser = data.data;
         location.href = web.WEBURL + "admin/pizzas.html"
       } else {
-        location.href = web.WEBURL + "pizzas.html"
+        location.href = web.WEBURL + "profile.html";
+        document.querySelector('pizza-admin-link').style.display = 'none';
+        document.querySelector('ingredient-admin-link').style.display = 'none';
       }
 
     }).catch(err => {
