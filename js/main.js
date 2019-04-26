@@ -1,7 +1,7 @@
 let web = {
   KEY: 'KEY',
   // URL: 'https://hoho0001.edumedia.ca', 
-  WEBURL: 'http://hoho0001.github.io/pizzashop/',
+  WEBURL: 'https://hoho0001.github.io/pizzashop/',
   // URL: 'http://localhost:3030',
   token: '',
   pizzas: [],
