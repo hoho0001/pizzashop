@@ -521,6 +521,7 @@ let web = {
     tdIngredients.classList.add('text-left');
     if (pizza.ingredients.length > 0) {
       let ingredientNameList = [];
+      console.log("These are the ingredients",pizza.ingredients);
       pizza.ingredients.forEach(ingredient => {
         let ingredientFound = web.ingredients.find(i => i._id == ingredient);
         if (ingredientFound) {
