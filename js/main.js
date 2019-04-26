@@ -272,7 +272,7 @@ let web = {
       return res.json();
     }).then(data => {
         web.currentUser = data.data;
-        if (currentUser.isStaff) {
+        if (data.data.isStaff) {
           console.log('set hidden');
           document.querySelector('.pizza-admin-link').hidden = false;
           document.querySelector('.ingredient-admin-link').hidden = false;
