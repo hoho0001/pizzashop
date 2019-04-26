@@ -320,13 +320,14 @@ let web = {
       })
       .catch(err => console.log(err));
   },
-  displayPizzaForAdmin: function () {
+  displayPizzaForAdmin: async function () {
     let adminPizzaDiv = document.querySelector('.admin-pizzas');
     if (!web.pizzas || web.pizzas.length == 0) {
       let h1 = document.createElement('h1');
       h1.textContent = 'No data found';
       adminPizzaDiv.appendChild(h1);
     } else {
+      await web.getAllIngredients();
       let table = document.createElement('table');
       table.classList.add('table');
       table.classList.add('table-hover');
@@ -753,7 +754,7 @@ let web = {
       .finally(() => web.currentPizza = null);
   },
 
-  refreshPizzaAdminPage: async function () {
+  refreshPizzaAdminPage: function () {
     if (web.pizzas.length == 0) { //if there is no content after delete, remove all the table 
       let pizzaAdminContainer = document.querySelector('.admin-pizzas');
       let pizzasTable = document.getElementById('pizzas-table')
@@ -762,7 +763,6 @@ let web = {
       h1.textContent = 'No data found';
       pizzaAdminContainer.appendChild(h1);
     } else {
-      await web.getAllIngredients();
       web.removePizzaRows();
       web.pizzas.forEach(pizza => web.createPizzaRow(pizza));
       web.addEditPizzaEvent();
