@@ -327,8 +327,8 @@ let web = {
       h1.textContent = 'No data found';
       adminPizzaDiv.appendChild(h1);
     } else {
-      await web.getAllIngredients();
-      console.log('ingredients found : '  + JSON.stringify(web.ingredients));
+     let webIngredients = await web.getAllIngredients();
+      console.log('ingredients found : '  + JSON.stringify(webIngredients));
       let table = document.createElement('table');
       table.classList.add('table');
       table.classList.add('table-hover');
