@@ -249,11 +249,12 @@ let web = {
         web.currentUser = data.data;
         location.href = web.WEBURL + "admin/pizzas.html"
       } else {
+        location.href = web.WEBURL + "profile.html";
         console.log('get pizzas link');
         let pizzasLink = document.querySelector('.pizza-admin-link');
         console.log(pizzasLink);
         document.querySelector('.ingredient-admin-link').hidden = true;
-        location.href = web.WEBURL + "profile.html";
+        
       }
 
     }).catch(err => {
