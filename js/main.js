@@ -321,15 +321,13 @@ let web = {
       })
       .catch(err => console.log(err));
   },
-  displayPizzaForAdmin: async function () {
+  displayPizzaForAdmin: function () {
     let adminPizzaDiv = document.querySelector('.admin-pizzas');
     if (!web.pizzas || web.pizzas.length == 0) {
       let h1 = document.createElement('h1');
       h1.textContent = 'No data found';
       adminPizzaDiv.appendChild(h1);
     } else {
-     let webIngredients = await web.getAllIngredients();
-      console.log('ingredients found : '  + web.ingredients);
       let table = document.createElement('table');
       table.classList.add('table');
       table.classList.add('table-hover');
@@ -521,7 +519,6 @@ let web = {
     tdIngredients.classList.add('text-left');
     if (pizza.ingredients.length > 0) {
       let ingredientNameList = [];
-      console.log("These are the ingredients",pizza.ingredients);
       pizza.ingredients.forEach(ingredient => {
         let ingredientFound = web.ingredients.find(i => i._id == ingredient);
         if (ingredientFound) {
