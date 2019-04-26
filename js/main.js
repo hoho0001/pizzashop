@@ -328,6 +328,7 @@ let web = {
       adminPizzaDiv.appendChild(h1);
     } else {
       await web.getAllIngredients();
+      console.log('ingredients found : '  + JSON.stringify(web.ingredients));
       let table = document.createElement('table');
       table.classList.add('table');
       table.classList.add('table-hover');
