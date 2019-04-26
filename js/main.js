@@ -1,7 +1,7 @@
 let web = {
   KEY: 'KEY',
-  // URL: 'http://hoho0001.edumedia.ca', 
-  URL: 'http://localhost:3030',
+  URL: 'http://hoho0001.edumedia.ca', 
+//   URL: 'http://localhost:3030',
   token: '',
   pizzas: [],
   currentUser: null,
